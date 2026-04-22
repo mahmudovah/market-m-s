@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-6343s+h2b@qct2@@ze)-sg4(ewh=msegm&hdlt)=v1$)ef4*%r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'kassa',
     'qarzdor',
     'profil',
+    'savdo',
 ]
 
 MIDDLEWARE = [

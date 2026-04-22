@@ -3,13 +3,55 @@
 {% block content %}
 <section class="header">
     <h2>Ombor bo'limi</h2>
-    <p>Kirim, chiqim va harakatlar tarixi.</p>
+    <p>Hozirgi qoldiq, yuk qabuli va harakatlar alohida ko'rinishda.</p>
+    <p>
+        <a href="/api/ombor/export/stock.xlsx">Excel eksport</a> |
+        <a href="/api/ombor/export/stock.pdf">PDF eksport</a>
+    </p>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>Ombordagi hozirgi qoldiq</h3>
+        <table>
+            <thead><tr><th>Mahsulot</th><th>Qoldiq</th><th>Min limit</th></tr></thead>
+            <tbody>
+                {% for s in current_stock %}
+                <tr>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.current_qty }}</td>
+                    <td>{{ s.min_stock_limit }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">Qoldiq ma'lumoti yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <h3>Yuk qabuli (kod + QR)</h3>
+        <table>
+            <thead><tr><th>Kod</th><th>Yetkazuvchi</th><th>Sana</th><th>QR</th></tr></thead>
+            <tbody>
+                {% for r in receipts %}
+                <tr>
+                    <td>{{ r.receipt_code }}</td>
+                    <td>{{ r.supplier_name|default:"-" }}</td>
+                    <td>{{ r.received_at|date:"d.m.Y H:i" }}</td>
+                    <td><img src="{{ r.qr_image_url }}" alt="QR" width="58" height="58"></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Yuk qabuli yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
 
 <section class="panel">
-    <h3>So'nggi harakatlar</h3>
+    <h3>So'nggi ombor harakatlari</h3>
     <table>
-        <thead><tr><th>Mahsulot</th><th>Turi</th><th>Miqdor</th><th>Narx</th><th>Sana</th><th>Manba</th></tr></thead>
+        <thead><tr><th>Mahsulot</th><th>Turi</th><th>Miqdor</th><th>Narx</th><th>Sana</th><th>Operator</th><th>Manba</th></tr></thead>
         <tbody>
             {% for m in movements %}
             <tr>
@@ -18,10 +60,11 @@
                 <td>{{ m.quantity }}</td>
                 <td>{{ m.unit_price }}</td>
                 <td>{{ m.moved_at|date:"d.m.Y H:i" }}</td>
+                <td>{{ m.operator.username|default:"-" }}</td>
                 <td>{{ m.source|default:"-" }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="6">Harakatlar hali yo'q.</td></tr>
+            <tr><td colspan="7">Harakatlar hali yo'q.</td></tr>
             {% endfor %}
         </tbody>
     </table>

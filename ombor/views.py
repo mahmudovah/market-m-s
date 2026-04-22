@@ -1,6 +1,9 @@
 from django.db.models import Case, DecimalField, ExpressionWrapper, F, Sum, Value, When
 from django.db.models.functions import Coalesce
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+
+from core.pdf_utils import build_simple_pdf
+from profil.models import ExportLog
 
 from .models import StockMovement, WarehouseReceipt, WarehouseReceiptItem
 
@@ -91,5 +94,46 @@ def receipt_cost_report(request):
     )
     recent_receipts = WarehouseReceipt.objects.values("id", "supplier_name", "received_at")[:20]
     return JsonResponse({"cost_report": list(report), "recent_receipts": list(recent_receipts)})
+
+
+def export_stock_excel(request):
+    try:
+        from openpyxl import Workbook
+    except Exception:
+        return HttpResponse("openpyxl o'rnatilmagan", status=500)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Stock"
+    ws.append(["Mahsulot", "Tur", "Miqdor", "Narx", "Sana", "Manba"])
+    for m in StockMovement.objects.select_related("product").order_by("-moved_at")[:1000]:
+        ws.append(
+            [
+                m.product.name,
+                m.movement_type,
+                float(m.quantity),
+                float(m.unit_price),
+                m.moved_at.strftime("%Y-%m-%d %H:%M"),
+                m.source,
+            ]
+        )
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="ombor_stock.xlsx"'
+    wb.save(response)
+    ExportLog.objects.create(module="Ombor", file_type=ExportLog.TYPE_EXCEL, generated_by=request.user if request.user.is_authenticated else None)
+    return response
+
+
+def export_stock_pdf(request):
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="ombor_stock.pdf"'
+    lines = []
+    for m in StockMovement.objects.select_related("product").order_by("-moved_at")[:120]:
+        lines.append(f"{m.moved_at:%d.%m.%Y} | {m.product.name} | {m.movement_type} | {m.quantity} | {m.unit_price}")
+    response.write(build_simple_pdf("Ombor harakatlari", lines))
+    ExportLog.objects.create(module="Ombor", file_type=ExportLog.TYPE_PDF, generated_by=request.user if request.user.is_authenticated else None)
+    return response
 
 # Create your views here.

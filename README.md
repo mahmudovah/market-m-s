@@ -37,11 +37,23 @@ Ushbu loyiha bozor do'koni va ombori uchun modul struktura bilan yozildi:
 ## Web sahifalar
 
 - `/` bosh dashboard
+- `/savdo/pos/` POS va chek
+- `/savdo/profit/` foyda-zarar
 - `/toifa/`
 - `/ombor/`
 - `/kassa/`
 - `/qarzdor/`
 - `/profil/`
+
+## Yangi biznes qoidalar
+
+- Ombordan chiqim (`CHIQIM`) yozilganda mavjud qoldiqdan ko'p ayirish taqiqlanadi.
+- Mavjud bo'lmagan mahsulotni ayirishga urinsa xabar chiqadi: `Hozir faqat X ta mavjud`.
+- Ombor sahifasida hozirgi qoldiq va yuk qabuli alohida ko'rsatiladi.
+- Yuk qabulida `receipt_code` va `qr_payload` saqlanadi (QR ko'rinishi bor).
+- Qarzdorlar sahifasida `Hozirgi`, `Muddati o'tgan`, `Yakunlangan` alohida bo'lim.
+- Toifada category bosilgandagina o'sha toifa mahsulotlari ko'rinadi.
+- Dashboardda 7/30/90 kun bo'yicha top sotilgan mahsulotlar chiqadi.
 
 ## Admin
 

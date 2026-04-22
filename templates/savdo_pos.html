@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}POS{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>POS / Sotuv</h2>
+    <p>Sotuv yarating, avtomatik chek, ombor chiqimi va kassa kirimi ishlaydi.</p>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>Yangi sotuv</h3>
+        <form method="post" class="form-grid">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Sotuvni yakunlash</button>
+        </form>
+    </div>
+    <div class="panel">
+        <h3>So'nggi sotuvlar</h3>
+        <table>
+            <thead><tr><th>ID</th><th>Mijoz</th><th>Sana</th><th>Summa</th><th>Chek</th></tr></thead>
+            <tbody>
+                {% for s in recent_sales %}
+                <tr>
+                    <td>{{ s.id }}</td>
+                    <td>{{ s.customer_name|default:"-" }}</td>
+                    <td>{{ s.sold_at|date:"d.m.Y H:i" }}</td>
+                    <td>{{ s.total_amount }}</td>
+                    <td><a href="{% url 'sale-receipt' s.id %}">Ko'rish</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Hali sotuv yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

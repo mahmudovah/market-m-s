@@ -1,3 +1,6 @@
+from datetime import timedelta
+from urllib.parse import quote
+
 from django.db.models import Case, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value, When
 from django.db.models.functions import Coalesce, TruncMonth
 from django.http import JsonResponse
@@ -5,9 +8,10 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from kassa.models import CashTransaction, CashTransfer
-from ombor.models import StockMovement
+from ombor.models import StockMovement, WarehouseReceipt
 from profil.models import ExportLog, ShopProfile
 from qarzdor.models import Debt, DebtPayment
+from savdo.models import Sale, SaleItem
 from toifa.models import Category, Product
 
 
@@ -27,6 +31,12 @@ def api_root(request):
 
 
 def dashboard(request):
+    period = request.GET.get("period", "30")
+    period_days = 30
+    if period in {"7", "30", "90"}:
+        period_days = int(period)
+    period_start = timezone.now() - timedelta(days=period_days)
+
     qty_field = DecimalField(max_digits=14, decimal_places=3)
     money_field = DecimalField(max_digits=14, decimal_places=2)
     qty_zero = Value(0, output_field=qty_field)
@@ -77,6 +87,9 @@ def dashboard(request):
         ),
     )
     debt_total = Debt.objects.aggregate(total=Coalesce(Sum("remaining_amount"), money_zero))["total"]
+    sales_profit = Sale.objects.filter(is_finalized=True).aggregate(
+        total=Coalesce(Sum("profit_amount", output_field=money_field), money_zero, output_field=money_field)
+    )["total"]
 
     low_stock = (
         Product.objects.annotate(
@@ -102,6 +115,7 @@ def dashboard(request):
             "hozirgi_zaxira": stock["jami_kirim"] - stock["jami_chiqim"],
             "kassa_qoldiq": cash["jami_kirim"] - cash["jami_chiqim"],
             "jami_qarz": debt_total,
+            "jami_foyda": sales_profit,
             "otkazmalar": CashTransfer.objects.count(),
         },
         "low_stock_items": low_stock,
@@ -109,17 +123,53 @@ def dashboard(request):
         "modules": [
             {"name": "Toifa", "desc": "Toifalar, mahsulotlar, narxlar", "url_name": "web-toifa"},
             {"name": "Ombor", "desc": "Kirim, chiqim, zaxira nazorati", "url_name": "web-ombor"},
+            {"name": "Savdo", "desc": "POS, chek, foyda-zarar", "url_name": "web-pos"},
             {"name": "Kassa", "desc": "Pul oqimi va oyma-oy taqqoslash", "url_name": "web-kassa"},
             {"name": "Qarzdor", "desc": "Qarzlar va qaytimlar", "url_name": "web-qarzdor"},
             {"name": "Profil", "desc": "Do'kon ma'lumotlari va sozlamalar", "url_name": "web-profil"},
         ],
+        "top_products": (
+            SaleItem.objects.filter(sale__is_finalized=True, sale__sold_at__gte=period_start)
+            .values("product__name")
+            .annotate(
+                total_qty=Coalesce(Sum("quantity", output_field=qty_field), qty_zero, output_field=qty_field),
+                total_revenue=Coalesce(
+                    Sum(F("quantity") * F("unit_price"), output_field=money_field),
+                    money_zero,
+                    output_field=money_field,
+                ),
+            )
+            .order_by("-total_qty")[:10]
+        ),
+        "period_days": period_days,
     }
     return render(request, "dashboard.html", context)
 
 
 def web_ombor(request):
-    movements = StockMovement.objects.select_related("product").order_by("-moved_at")[:20]
-    context = {"movements": movements}
+    qty_field = DecimalField(max_digits=14, decimal_places=3)
+    qty_zero = Value(0, output_field=qty_field)
+    current_stock = (
+        Product.objects.annotate(
+            kirim=Coalesce(
+                Sum("stock_movements__quantity", filter=Q(stock_movements__movement_type=StockMovement.TYPE_IN), output_field=qty_field),
+                qty_zero,
+                output_field=qty_field,
+            ),
+            chiqim=Coalesce(
+                Sum("stock_movements__quantity", filter=Q(stock_movements__movement_type=StockMovement.TYPE_OUT), output_field=qty_field),
+                qty_zero,
+                output_field=qty_field,
+            ),
+        )
+        .annotate(current_qty=ExpressionWrapper(F("kirim") - F("chiqim"), output_field=qty_field))
+        .order_by("name")
+    )
+    receipts = list(WarehouseReceipt.objects.select_related("operator").order_by("-received_at")[:20])
+    for receipt in receipts:
+        receipt.qr_image_url = f"https://quickchart.io/qr?size=140&text={quote(receipt.qr_payload)}"
+    movements = StockMovement.objects.select_related("product", "operator").order_by("-moved_at")[:20]
+    context = {"current_stock": current_stock, "receipts": receipts, "movements": movements}
     return render(request, "ombor.html", context)
 
 
@@ -195,12 +245,14 @@ def web_kassa(request):
 
 def web_qarzdor(request):
     today = timezone.localdate()
-    debts = Debt.objects.select_related("debtor", "product").order_by("-issued_at")[:20]
-    overdue = Debt.objects.filter(due_date__lt=today, remaining_amount__gt=0).select_related("debtor")[:10]
+    active_debts = Debt.objects.filter(due_date__gte=today, remaining_amount__gt=0).select_related("debtor", "product").order_by("-issued_at")[:20]
+    overdue = Debt.objects.filter(due_date__lt=today, remaining_amount__gt=0).select_related("debtor", "product")[:20]
+    closed = Debt.objects.filter(remaining_amount__lte=0).select_related("debtor", "product").order_by("-issued_at")[:20]
     today_payments = DebtPayment.objects.filter(paid_at__date=today).select_related("debt__debtor")[:10]
     context = {
-        "debts": debts,
+        "active_debts": active_debts,
         "overdue": overdue,
+        "closed": closed,
         "today_payments": today_payments,
     }
     return render(request, "qarzdor.html", context)
@@ -208,8 +260,18 @@ def web_qarzdor(request):
 
 def web_toifa(request):
     categories = Category.objects.annotate(product_count=Count("products"))
-    products = Product.objects.select_related("category").order_by("category__name", "name")[:30]
-    return render(request, "toifa.html", {"categories": categories, "products": products})
+    selected_category = request.GET.get("category")
+    products = []
+    selected_category_obj = None
+    if selected_category:
+        selected_category_obj = categories.filter(pk=selected_category).first()
+        if selected_category_obj:
+            products = Product.objects.select_related("category").filter(category=selected_category_obj).order_by("name")
+    return render(
+        request,
+        "toifa.html",
+        {"categories": categories, "products": products, "selected_category": selected_category_obj},
+    )
 
 
 def web_profil(request):

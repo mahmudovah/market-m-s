@@ -30,6 +30,7 @@ from .views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", dashboard, name="web-dashboard"),
+    path("savdo/", include("savdo.urls")),
     path("ombor/", web_ombor, name="web-ombor"),
     path("kassa/", web_kassa, name="web-kassa"),
     path("qarzdor/", web_qarzdor, name="web-qarzdor"),

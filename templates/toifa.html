@@ -14,7 +14,7 @@
             <tbody>
                 {% for c in categories %}
                 <tr>
-                    <td>{{ c.name }}</td>
+                    <td><a href="?category={{ c.id }}">{{ c.name }}</a></td>
                     <td>{{ c.order }}</td>
                     <td>{{ c.product_count }}</td>
                 </tr>
@@ -25,7 +25,10 @@
         </table>
     </div>
     <div class="panel">
-        <h3>Mahsulot kartasi</h3>
+        <h3>Mahsulot kartasi {% if selected_category %}- {{ selected_category.name }}{% endif %}</h3>
+        {% if not selected_category %}
+        <p>Ko'rish uchun chap tomondan toifa nomiga bosing.</p>
+        {% else %}
         <table>
             <thead><tr><th>Nom</th><th>Toifa</th><th>Narx</th><th>Birlik</th></tr></thead>
             <tbody>
@@ -41,6 +44,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

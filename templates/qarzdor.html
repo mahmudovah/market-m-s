@@ -3,16 +3,20 @@
 {% block content %}
 <section class="header">
     <h2>Qarzdorlar bo'limi</h2>
-    <p>Qarzlar ro'yxati, muddati o'tganlar va qaytimlar.</p>
+    <p>Hozirgi qarzdorlar, muddati o'tganlar va yakunlangan qarzlar alohida.</p>
+    <p>
+        <a href="/api/qarzdor/export/debts.xlsx">Excel eksport</a> |
+        <a href="/api/qarzdor/export/debts.pdf">PDF eksport</a>
+    </p>
 </section>
 
 <section class="grid-2">
     <div class="panel">
-        <h3>So'nggi qarzlar</h3>
+        <h3>Hozirgi qarzdorlar</h3>
         <table>
             <thead><tr><th>Qarzdor</th><th>Mahsulot</th><th>Jami</th><th>Qoldiq</th><th>Muddat</th></tr></thead>
             <tbody>
-                {% for d in debts %}
+                {% for d in active_debts %}
                 <tr>
                     <td>{{ d.debtor.full_name }}</td>
                     <td>{{ d.product.name|default:"-" }}</td>
@@ -21,13 +25,13 @@
                     <td>{{ d.due_date|date:"d.m.Y" }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5">Qarzlar topilmadi.</td></tr>
+                <tr><td colspan="5">Hozirgi qarzdor yo'q.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     <div class="panel">
-        <h3>Muddati o'tganlar</h3>
+        <h3>Muddati o'tgan qarzlar</h3>
         <table>
             <thead><tr><th>Qarzdor</th><th>Telefon</th><th>Qoldiq</th><th>Muddat</th></tr></thead>
             <tbody>
@@ -44,6 +48,26 @@
             </tbody>
         </table>
     </div>
+</section>
+
+<section class="panel">
+    <h3>Yakunlangan qarzlar</h3>
+    <table>
+        <thead><tr><th>Qarzdor</th><th>Mahsulot</th><th>Jami</th><th>Qoldiq</th><th>Muddat</th></tr></thead>
+        <tbody>
+            {% for d in closed %}
+            <tr>
+                <td>{{ d.debtor.full_name }}</td>
+                <td>{{ d.product.name|default:"-" }}</td>
+                <td>{{ d.amount }}</td>
+                <td>{{ d.remaining_amount }}</td>
+                <td>{{ d.due_date|date:"d.m.Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Yakunlangan qarzlar yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </section>
 
 <section class="panel">

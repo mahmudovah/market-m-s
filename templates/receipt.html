@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Chek{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Chek #{{ sale.id }}</h2>
+    <p>{{ sale.sold_at|date:"d.m.Y H:i" }} | Mijoz: {{ sale.customer_name|default:"Naqd mijoz" }}</p>
+</section>
+
+<section class="panel">
+    <table>
+        <thead><tr><th>Mahsulot</th><th>Miqdor</th><th>Narx</th><th>Jami</th></tr></thead>
+        <tbody>
+            {% for item in sale.items.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price }}</td>
+                <td>{{ item.line_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><strong>Jami:</strong> {{ sale.total_amount }}</p>
+    <p><strong>Tannarx:</strong> {{ sale.total_cost }}</p>
+    <p><strong>Foyda:</strong> {{ sale.profit_amount }}</p>
+    <a class="btn" href="{% url 'web-pos' %}">Yana sotuv qilish</a>
+</section>
+{% endblock %}
