@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bozor Panel{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+    <div class="bg-orb orb-one"></div>
+    <div class="bg-orb orb-two"></div>
+    <div class="layout">
+        <aside class="sidebar">
+            <h1>BozorERP</h1>
+            <p>Zamonaviy do'kon boshqaruvi</p>
+            <nav>
+                <a href="{% url 'web-dashboard' %}">Dashboard</a>
+                <a href="{% url 'web-toifa' %}">Toifa</a>
+                <a href="{% url 'web-ombor' %}">Ombor</a>
+                <a href="{% url 'web-kassa' %}">Kassa</a>
+                <a href="{% url 'web-qarzdor' %}">Qarzdor</a>
+                <a href="{% url 'web-profil' %}">Profil</a>
+                <a href="/admin/">Admin</a>
+            </nav>
+        </aside>
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

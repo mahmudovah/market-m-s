@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Qarzdor{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Qarzdorlar bo'limi</h2>
+    <p>Qarzlar ro'yxati, muddati o'tganlar va qaytimlar.</p>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>So'nggi qarzlar</h3>
+        <table>
+            <thead><tr><th>Qarzdor</th><th>Mahsulot</th><th>Jami</th><th>Qoldiq</th><th>Muddat</th></tr></thead>
+            <tbody>
+                {% for d in debts %}
+                <tr>
+                    <td>{{ d.debtor.full_name }}</td>
+                    <td>{{ d.product.name|default:"-" }}</td>
+                    <td>{{ d.amount }}</td>
+                    <td>{{ d.remaining_amount }}</td>
+                    <td>{{ d.due_date|date:"d.m.Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Qarzlar topilmadi.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <h3>Muddati o'tganlar</h3>
+        <table>
+            <thead><tr><th>Qarzdor</th><th>Telefon</th><th>Qoldiq</th><th>Muddat</th></tr></thead>
+            <tbody>
+                {% for o in overdue %}
+                <tr>
+                    <td>{{ o.debtor.full_name }}</td>
+                    <td>{{ o.debtor.phone }}</td>
+                    <td>{{ o.remaining_amount }}</td>
+                    <td>{{ o.due_date|date:"d.m.Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Muddati o'tgan qarz yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <h3>Bugungi qaytimlar</h3>
+    <table>
+        <thead><tr><th>Qarzdor</th><th>Miqdor</th><th>Vaqt</th></tr></thead>
+        <tbody>
+            {% for p in today_payments %}
+            <tr>
+                <td>{{ p.debt.debtor.full_name }}</td>
+                <td>{{ p.amount }}</td>
+                <td>{{ p.paid_at|date:"d.m.Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">Bugun qaytim bo'lmagan.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

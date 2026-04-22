@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Toifa{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Toifalar va mahsulotlar</h2>
+    <p>Mahsulot kartasi, toifa tarkibi va narx boshqaruvi.</p>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>Toifalar ro'yxati</h3>
+        <table>
+            <thead><tr><th>Nomi</th><th>Tartib</th><th>Mahsulot soni</th></tr></thead>
+            <tbody>
+                {% for c in categories %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.order }}</td>
+                    <td>{{ c.product_count }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">Toifa topilmadi.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <h3>Mahsulot kartasi</h3>
+        <table>
+            <thead><tr><th>Nom</th><th>Toifa</th><th>Narx</th><th>Birlik</th></tr></thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.category.name }}</td>
+                    <td>{{ p.sale_price }}</td>
+                    <td>{{ p.unit }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Mahsulot yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

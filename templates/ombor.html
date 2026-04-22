@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Ombor{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Ombor bo'limi</h2>
+    <p>Kirim, chiqim va harakatlar tarixi.</p>
+</section>
+
+<section class="panel">
+    <h3>So'nggi harakatlar</h3>
+    <table>
+        <thead><tr><th>Mahsulot</th><th>Turi</th><th>Miqdor</th><th>Narx</th><th>Sana</th><th>Manba</th></tr></thead>
+        <tbody>
+            {% for m in movements %}
+            <tr>
+                <td>{{ m.product.name }}</td>
+                <td>{{ m.get_movement_type_display }}</td>
+                <td>{{ m.quantity }}</td>
+                <td>{{ m.unit_price }}</td>
+                <td>{{ m.moved_at|date:"d.m.Y H:i" }}</td>
+                <td>{{ m.source|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Harakatlar hali yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

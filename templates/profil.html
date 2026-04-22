@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Profil{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Profil va sozlamalar</h2>
+    <p>Do'kon ma'lumotlari, valyuta va eksport tarixi.</p>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>Do'kon profili</h3>
+        {% if profile %}
+        <ul class="details-list">
+            <li><span>Nomi:</span><strong>{{ profile.shop_name }}</strong></li>
+            <li><span>Telefon:</span><strong>{{ profile.phone|default:"-" }}</strong></li>
+            <li><span>Manzil:</span><strong>{{ profile.address|default:"-" }}</strong></li>
+            <li><span>Valyuta:</span><strong>{{ profile.currency }}</strong></li>
+            <li><span>Til:</span><strong>{{ profile.language }}</strong></li>
+            <li><span>Kam zaxira limiti:</span><strong>{{ profile.low_stock_alert_limit }}</strong></li>
+        </ul>
+        {% else %}
+        <p>Profil ma'lumoti yo'q. Admin paneldan ShopProfile qo'shing.</p>
+        {% endif %}
+    </div>
+    <div class="panel">
+        <h3>Eksport loglari</h3>
+        <table>
+            <thead><tr><th>Modul</th><th>Format</th><th>Foydalanuvchi</th><th>Sana</th></tr></thead>
+            <tbody>
+                {% for e in exports %}
+                <tr>
+                    <td>{{ e.module }}</td>
+                    <td>{{ e.file_type }}</td>
+                    <td>{{ e.generated_by.username|default:"-" }}</td>
+                    <td>{{ e.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Eksport tarixi hali bo'sh.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

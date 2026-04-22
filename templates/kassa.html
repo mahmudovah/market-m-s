@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Kassa{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Kassa bo'limi</h2>
+    <p>Do'kon va shaxsiy pul harakati, oyma-oy solishtirish.</p>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>Hisoblar balansi</h3>
+        <table>
+            <thead><tr><th>Hisob</th><th>Turi</th><th>Kirim</th><th>Chiqim</th><th>Balans</th></tr></thead>
+            <tbody>
+                {% for a in accounts %}
+                <tr>
+                    <td>{{ a.account__name }}</td>
+                    <td>{{ a.account__account_type }}</td>
+                    <td>{{ a.kirim }}</td>
+                    <td>{{ a.chiqim }}</td>
+                    <td>{{ a.balance }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Ma'lumot topilmadi.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <h3>Oyma-oy natija</h3>
+        <table>
+            <thead><tr><th>Oy</th><th>Kirim</th><th>Chiqim</th><th>Qoldiq</th></tr></thead>
+            <tbody>
+                {% for r in monthly_rows %}
+                <tr>
+                    <td>{{ r.month|date:"F Y" }}</td>
+                    <td>{{ r.kirim }}</td>
+                    <td>{{ r.chiqim }}</td>
+                    <td>{{ r.qoldiq }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Oy kesimida ma'lumot yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

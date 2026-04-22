@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Bosh sahifa</h2>
+    <p>Do'kon, ombor va qarzdorlik bo'yicha umumiy ko'rsatkichlar.</p>
+</section>
+
+<section class="cards">
+    <article class="card"><h3>Toifalar</h3><strong>{{ cards.toifalar }}</strong></article>
+    <article class="card"><h3>Mahsulotlar</h3><strong>{{ cards.mahsulotlar }}</strong></article>
+    <article class="card"><h3>Hozirgi zaxira</h3><strong>{{ cards.hozirgi_zaxira }}</strong></article>
+    <article class="card"><h3>Kassa qoldiq</h3><strong>{{ cards.kassa_qoldiq }}</strong></article>
+    <article class="card"><h3>Jami qarz</h3><strong>{{ cards.jami_qarz }}</strong></article>
+    <article class="card"><h3>O'tkazmalar</h3><strong>{{ cards.otkazmalar }}</strong></article>
+</section>
+
+<section class="grid-2">
+    <div class="panel">
+        <h3>Kam qolgan mahsulotlar</h3>
+        <table>
+            <thead><tr><th>Mahsulot</th><th>Toifa</th><th>Qoldiq</th><th>Limit</th></tr></thead>
+            <tbody>
+                {% for item in low_stock_items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category.name }}</td>
+                    <td>{{ item.current_stock }}</td>
+                    <td>{{ item.min_stock_limit }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">Kam qoldiq yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <h3>Oxirgi eksportlar</h3>
+        <table>
+            <thead><tr><th>Modul</th><th>Format</th><th>Sana</th></tr></thead>
+            <tbody>
+                {% for log in recent_exports %}
+                <tr>
+                    <td>{{ log.module }}</td>
+                    <td>{{ log.file_type }}</td>
+                    <td>{{ log.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">Eksport loglar yo'q.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <h3>Modullar</h3>
+    <div class="module-grid">
+        {% for module in modules %}
+        <a class="module-card" href="{% url module.url_name %}">
+            <h4>{{ module.name }}</h4>
+            <p>{{ module.desc }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
