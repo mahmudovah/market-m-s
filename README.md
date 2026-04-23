@@ -37,6 +37,9 @@ Ushbu loyiha bozor do'koni va ombori uchun modul struktura bilan yozildi:
 ## Web sahifalar
 
 - `/` bosh dashboard
+- `/login/` tizim login
+- `/operator/` operator panel
+- `/operator/ombor/` operator uchun ombor qoldiqi
 - `/savdo/pos/` POS va chek
 - `/savdo/profit/` foyda-zarar
 - `/toifa/`
@@ -54,6 +57,9 @@ Ushbu loyiha bozor do'koni va ombori uchun modul struktura bilan yozildi:
 - Qarzdorlar sahifasida `Hozirgi`, `Muddati o'tgan`, `Yakunlangan` alohida bo'lim.
 - Toifada category bosilgandagina o'sha toifa mahsulotlari ko'rinadi.
 - Dashboardda 7/30/90 kun bo'yicha top sotilgan mahsulotlar chiqadi.
+- Operatorlar uchun cheklangan panel:
+  `Toifa va Mahsulot`, `Ombor qoldiq + kam qolgan`, `Profil`, `POS/Chek`.
+- `Kassa` va `Qarzdor` sahifalari operatorlar uchun yopiq (admin/staff uchun).
 
 ## Admin
 

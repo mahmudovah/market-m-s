@@ -12,21 +12,49 @@
     <div class="bg-orb orb-two"></div>
     <div class="layout">
         <aside class="sidebar">
-            <h1>BozorERP</h1>
+            <div class="brand-wrap">
+                <img class="brand-logo" src="{% static 'img/tijara-logo.png' %}" alt="Tijara logo">
+                <h1>Tijara ERP</h1>
+            </div>
             <p>Zamonaviy do'kon boshqaruvi</p>
+            {% if user.is_authenticated %}
+            <div class="user-chip">
+                <strong>{{ user.username }}</strong>
+                <span>{% if user.is_superuser or user.is_staff %}Admin{% else %}Operator{% endif %}</span>
+            </div>
+            {% endif %}
             <nav>
-                <a href="{% url 'web-dashboard' %}">Dashboard</a>
-                <a href="{% url 'web-pos' %}">POS / Chek</a>
-                <a href="{% url 'web-profit' %}">Foyda-Zarar</a>
-                <a href="{% url 'web-toifa' %}">Toifa</a>
-                <a href="{% url 'web-ombor' %}">Ombor</a>
-                <a href="{% url 'web-kassa' %}">Kassa</a>
-                <a href="{% url 'web-qarzdor' %}">Qarzdor</a>
-                <a href="{% url 'web-profil' %}">Profil</a>
-                <a href="/admin/">Admin</a>
+                {% if user.is_authenticated %}
+                    {% if user.is_superuser or user.is_staff %}
+                    <a class="nav-link" href="{% url 'web-dashboard' %}">Dashboard</a>
+                    <a class="nav-link" href="{% url 'web-pos' %}">POS / Chek</a>
+                    <a class="nav-link" href="{% url 'web-profit' %}">Foyda-Zarar</a>
+                    <a class="nav-link" href="{% url 'web-toifa' %}">Toifa</a>
+                    <a class="nav-link" href="{% url 'web-ombor' %}">Ombor</a>
+                    <a class="nav-link" href="{% url 'web-kassa' %}">Kassa</a>
+                    <a class="nav-link" href="{% url 'web-qarzdor' %}">Qarzdor</a>
+                    <a class="nav-link" href="{% url 'web-profil' %}">Profil</a>
+                    <a class="nav-link" href="/admin/">Admin</a>
+                    {% else %}
+                    <a class="nav-link" href="{% url 'operator-dashboard' %}">Operator panel</a>
+                    <a class="nav-link" href="{% url 'web-toifa' %}">Toifa va Mahsulot</a>
+                    <a class="nav-link" href="{% url 'operator-ombor' %}">Ombor qoldiq</a>
+                    <a class="nav-link" href="{% url 'web-pos' %}">POS / Chek</a>
+                    <a class="nav-link" href="{% url 'web-profil' %}">Profil</a>
+                    {% endif %}
+                    <a class="nav-link nav-danger" href="{% url 'logout' %}">Chiqish</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">Kirish</a>
+                    <a class="nav-link" href="/admin/login/">Admin kirish</a>
+                {% endif %}
             </nav>
         </aside>
         <main class="content">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="panel">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
             {% block content %}{% endblock %}
         </main>
     </div>

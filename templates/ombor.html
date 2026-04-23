@@ -56,8 +56,16 @@
             {% for m in movements %}
             <tr>
                 <td>{{ m.product.name }}</td>
-                <td>{{ m.get_movement_type_display }}</td>
-                <td>{{ m.quantity }}</td>
+                <td>
+                    {% if m.movement_type == "KIRIM" %}
+                    <span class="status-badge status-in">Kirim</span>
+                    {% elif m.movement_type == "CHIQIM" %}
+                    <span class="status-badge status-out">Chiqim</span>
+                    {% else %}
+                    <span class="status-badge status-neutral">{{ m.get_movement_type_display }}</span>
+                    {% endif %}
+                </td>
+                <td class="{% if m.movement_type == 'KIRIM' %}amount-in{% elif m.movement_type == 'CHIQIM' %}amount-out{% endif %}">{{ m.quantity }}</td>
                 <td>{{ m.unit_price }}</td>
                 <td>{{ m.moved_at|date:"d.m.Y H:i" }}</td>
                 <td>{{ m.operator.username|default:"-" }}</td>

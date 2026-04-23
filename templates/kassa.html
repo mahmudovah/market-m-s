@@ -16,8 +16,8 @@
                 <tr>
                     <td>{{ a.account__name }}</td>
                     <td>{{ a.account__account_type }}</td>
-                    <td>{{ a.kirim }}</td>
-                    <td>{{ a.chiqim }}</td>
+                    <td class="amount-in">{{ a.kirim }}</td>
+                    <td class="amount-out">{{ a.chiqim }}</td>
                     <td>{{ a.balance }}</td>
                 </tr>
                 {% empty %}
@@ -34,8 +34,8 @@
                 {% for r in monthly_rows %}
                 <tr>
                     <td>{{ r.month|date:"F Y" }}</td>
-                    <td>{{ r.kirim }}</td>
-                    <td>{{ r.chiqim }}</td>
+                    <td class="amount-in">{{ r.kirim }}</td>
+                    <td class="amount-out">{{ r.chiqim }}</td>
                     <td>{{ r.qoldiq }}</td>
                 </tr>
                 {% empty %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Operator panel{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Operator panel</h2>
+    <p>Toifa/mahsulot, ombor qoldiqi, profil va POS uchun tezkor boshqaruv.</p>
+</section>
+
+<section class="cards">
+    <article class="card"><h3>Toifalar</h3><strong>{{ cards.toifalar }}</strong></article>
+    <article class="card"><h3>Mahsulotlar</h3><strong>{{ cards.mahsulotlar }}</strong></article>
+    <article class="card"><h3>Kam qolganlar</h3><strong>{{ cards.kam_qolganlar }}</strong></article>
+    <article class="card"><h3>Bugungi sotuvlar</h3><strong>{{ cards.bugungi_sotuvlar }}</strong></article>
+</section>
+
+<section class="panel">
+    <h3>Kam qolgan mahsulotlar</h3>
+    <table>
+        <thead><tr><th>Mahsulot</th><th>Qoldiq</th><th>Limit</th></tr></thead>
+        <tbody>
+            {% for item in low_stock_items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.current_qty }}</td>
+                <td>{{ item.min_stock_limit }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">Kam qolgan mahsulot yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h3>Operator modullari</h3>
+    <div class="module-grid">
+        {% for module in modules %}
+        <a class="module-card" href="{% url module.url_name %}">
+            <h4>{{ module.name }}</h4>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

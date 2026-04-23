@@ -1,10 +1,11 @@
 from datetime import timedelta
 from urllib.parse import quote
 
-from django.db.models import Case, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value, When
+from django.db.models import BooleanField, Case, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value, When
 from django.db.models.functions import Coalesce, TruncMonth
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 
 from kassa.models import CashTransaction, CashTransfer
@@ -13,6 +14,47 @@ from profil.models import ExportLog, ShopProfile
 from qarzdor.models import Debt, DebtPayment
 from savdo.models import Sale, SaleItem
 from toifa.models import Category, Product
+
+
+def _is_admin_like(user):
+    return user.is_authenticated and (user.is_superuser or user.is_staff)
+
+
+def _stock_with_low_flags():
+    qty_field = DecimalField(max_digits=14, decimal_places=3)
+    qty_zero = Value(0, output_field=qty_field)
+    current_stock = (
+        Product.objects.annotate(
+            kirim=Coalesce(
+                Sum(
+                    "stock_movements__quantity",
+                    filter=Q(stock_movements__movement_type=StockMovement.TYPE_IN),
+                    output_field=qty_field,
+                ),
+                qty_zero,
+                output_field=qty_field,
+            ),
+            chiqim=Coalesce(
+                Sum(
+                    "stock_movements__quantity",
+                    filter=Q(stock_movements__movement_type=StockMovement.TYPE_OUT),
+                    output_field=qty_field,
+                ),
+                qty_zero,
+                output_field=qty_field,
+            ),
+        )
+        .annotate(current_qty=ExpressionWrapper(F("kirim") - F("chiqim"), output_field=qty_field))
+        .annotate(
+            is_low=Case(
+                When(current_qty__lte=F("min_stock_limit"), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        .order_by("name")
+    )
+    return current_stock
 
 
 def api_root(request):
@@ -30,6 +72,8 @@ def api_root(request):
     )
 
 
+@login_required
+@user_passes_test(_is_admin_like, login_url="/operator/")
 def dashboard(request):
     period = request.GET.get("period", "30")
     period_days = 30
@@ -146,25 +190,10 @@ def dashboard(request):
     return render(request, "dashboard.html", context)
 
 
+@login_required
+@user_passes_test(_is_admin_like, login_url="/operator/")
 def web_ombor(request):
-    qty_field = DecimalField(max_digits=14, decimal_places=3)
-    qty_zero = Value(0, output_field=qty_field)
-    current_stock = (
-        Product.objects.annotate(
-            kirim=Coalesce(
-                Sum("stock_movements__quantity", filter=Q(stock_movements__movement_type=StockMovement.TYPE_IN), output_field=qty_field),
-                qty_zero,
-                output_field=qty_field,
-            ),
-            chiqim=Coalesce(
-                Sum("stock_movements__quantity", filter=Q(stock_movements__movement_type=StockMovement.TYPE_OUT), output_field=qty_field),
-                qty_zero,
-                output_field=qty_field,
-            ),
-        )
-        .annotate(current_qty=ExpressionWrapper(F("kirim") - F("chiqim"), output_field=qty_field))
-        .order_by("name")
-    )
+    current_stock = _stock_with_low_flags()
     receipts = list(WarehouseReceipt.objects.select_related("operator").order_by("-received_at")[:20])
     for receipt in receipts:
         receipt.qr_image_url = f"https://quickchart.io/qr?size=140&text={quote(receipt.qr_payload)}"
@@ -173,7 +202,11 @@ def web_ombor(request):
     return render(request, "ombor.html", context)
 
 
+@login_required
 def web_kassa(request):
+    if not _is_admin_like(request.user):
+        return redirect("operator-dashboard")
+
     money_field = DecimalField(max_digits=14, decimal_places=2)
     money_zero = Value(0, output_field=money_field)
 
@@ -243,7 +276,11 @@ def web_kassa(request):
     return render(request, "kassa.html", {"accounts": accounts, "monthly_rows": monthly_rows})
 
 
+@login_required
 def web_qarzdor(request):
+    if not _is_admin_like(request.user):
+        return redirect("operator-dashboard")
+
     today = timezone.localdate()
     active_debts = Debt.objects.filter(due_date__gte=today, remaining_amount__gt=0).select_related("debtor", "product").order_by("-issued_at")[:20]
     overdue = Debt.objects.filter(due_date__lt=today, remaining_amount__gt=0).select_related("debtor", "product")[:20]
@@ -258,6 +295,7 @@ def web_qarzdor(request):
     return render(request, "qarzdor.html", context)
 
 
+@login_required
 def web_toifa(request):
     categories = Category.objects.annotate(product_count=Count("products"))
     selected_category = request.GET.get("category")
@@ -274,7 +312,36 @@ def web_toifa(request):
     )
 
 
+@login_required
 def web_profil(request):
     profile = ShopProfile.objects.order_by("-id").first()
     exports = ExportLog.objects.select_related("generated_by").order_by("-created_at")[:20]
     return render(request, "profil.html", {"profile": profile, "exports": exports})
+
+
+@login_required
+def operator_dashboard(request):
+    current_stock = _stock_with_low_flags()
+    low_items = [row for row in current_stock if row.is_low][:20]
+    context = {
+        "cards": {
+            "toifalar": Category.objects.count(),
+            "mahsulotlar": Product.objects.count(),
+            "kam_qolganlar": len(low_items),
+            "bugungi_sotuvlar": Sale.objects.filter(sold_at__date=timezone.localdate()).count(),
+        },
+        "low_stock_items": low_items,
+        "modules": [
+            {"name": "Toifa va Mahsulot", "url_name": "web-toifa"},
+            {"name": "Ombor (qoldiq)", "url_name": "operator-ombor"},
+            {"name": "POS / Chek", "url_name": "web-pos"},
+            {"name": "Profil", "url_name": "web-profil"},
+        ],
+    }
+    return render(request, "operator_dashboard.html", context)
+
+
+@login_required
+def operator_ombor(request):
+    stock_rows = _stock_with_low_flags()
+    return render(request, "operator_ombor.html", {"stock_rows": stock_rows})

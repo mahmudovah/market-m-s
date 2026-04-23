@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Operator Ombor{% endblock %}
+{% block content %}
+<section class="header">
+    <h2>Operator Ombor</h2>
+    <p>Faqat joriy qoldiq va kam qolgan mahsulotlar ko'rinadi.</p>
+</section>
+
+<section class="panel">
+    <table>
+        <thead><tr><th>Mahsulot</th><th>Qoldiq</th><th>Min limit</th><th>Holat</th></tr></thead>
+        <tbody>
+            {% for row in stock_rows %}
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.current_qty }}</td>
+                <td>{{ row.min_stock_limit }}</td>
+                <td>{% if row.is_low %}Kam qoldi{% else %}Norma{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">Mahsulotlar yo'q.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

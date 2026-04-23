@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import DecimalField, F, Q, Sum, Value
 from django.db.models.functions import Coalesce, TruncMonth
 from django.http import HttpResponse
@@ -34,6 +35,7 @@ def _current_stock_for_product(product: Product) -> Decimal:
     return agg["kirim"] - agg["chiqim"]
 
 
+@login_required
 def pos_page(request):
     if request.method == "POST":
         form = POSSaleForm(request.POST)
@@ -73,11 +75,13 @@ def pos_page(request):
     return render(request, "savdo_pos.html", {"form": form, "recent_sales": recent_sales})
 
 
+@login_required
 def sale_receipt(request, sale_id: int):
     sale = get_object_or_404(Sale.objects.select_related("cash_account").prefetch_related("items__product"), pk=sale_id)
     return render(request, "receipt.html", {"sale": sale})
 
 
+@login_required
 def profit_report(request):
     money_field = DecimalField(max_digits=14, decimal_places=2)
     money_zero = Value(0, output_field=money_field)
@@ -105,6 +109,7 @@ def profit_report(request):
     )
 
 
+@login_required
 def export_sales_excel(request):
     try:
         from openpyxl import Workbook
@@ -136,6 +141,7 @@ def export_sales_excel(request):
     return response
 
 
+@login_required
 def export_sales_pdf(request):
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = 'attachment; filename="sales_report.pdf"'

@@ -1,12 +1,16 @@
 :root {
-    --bg: #f3f7f4;
-    --card: #ffffff;
-    --text: #16302b;
-    --muted: #5e7b74;
-    --accent: #0f9d7a;
-    --accent-2: #1a7fcb;
-    --line: #d9e8e3;
-    --shadow: 0 12px 28px rgba(21, 61, 51, 0.08);
+    --bg-1: #f4f9ff;
+    --bg-2: #f8fff8;
+    --text: #0f2438;
+    --muted: #58718b;
+    --line: #d8e7f5;
+    --card: rgba(255, 255, 255, 0.86);
+    --glass: blur(10px);
+    --brand-a: #1f8ef1;
+    --brand-b: #0bb783;
+    --brand-c: #ff8a3d;
+    --danger: #f0446f;
+    --shadow: 0 18px 32px rgba(17, 52, 84, 0.1);
 }
 
 * {
@@ -15,60 +19,128 @@
 
 body {
     margin: 0;
-    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-family: "Sora", "Manrope", sans-serif;
     color: var(--text);
-    background: radial-gradient(circle at 10% 20%, #eaf5ef 0%, #f7fbf9 42%, #eef5fb 100%);
+    background: linear-gradient(120deg, var(--bg-1), var(--bg-2));
+}
+
+a {
+    color: #226eca;
 }
 
 .bg-orb {
     position: fixed;
     border-radius: 999px;
     pointer-events: none;
-    filter: blur(24px);
+    filter: blur(35px);
     z-index: 0;
+    animation: drift 12s ease-in-out infinite alternate;
 }
 
 .orb-one {
-    width: 280px;
-    height: 280px;
-    top: -90px;
-    right: -60px;
-    background: rgba(15, 157, 122, 0.25);
+    width: 340px;
+    height: 340px;
+    top: -120px;
+    right: -80px;
+    background: rgba(31, 142, 241, 0.24);
 }
 
 .orb-two {
-    width: 240px;
-    height: 240px;
-    bottom: -80px;
-    left: -60px;
-    background: rgba(26, 127, 203, 0.2);
+    width: 280px;
+    height: 280px;
+    bottom: -90px;
+    left: -70px;
+    background: rgba(11, 183, 131, 0.2);
+    animation-delay: 0.8s;
+}
+
+@keyframes drift {
+    from {
+        transform: translateY(0) scale(1);
+    }
+    to {
+        transform: translateY(20px) scale(1.05);
+    }
 }
 
 .layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 280px 1fr;
     min-height: 100vh;
     position: relative;
     z-index: 2;
 }
 
 .sidebar {
-    padding: 28px 20px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(6px);
-    border-right: 1px solid var(--line);
+    padding: 28px 18px;
+    background: linear-gradient(170deg, rgba(16, 55, 90, 0.95), rgba(20, 92, 108, 0.95));
+    color: #eaf6ff;
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #52d5ff, #84ffcc);
+    box-shadow: 0 0 0 6px rgba(132, 255, 204, 0.17);
+}
+
+.brand-logo {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 3px;
 }
 
 .sidebar h1 {
     margin: 0;
-    font-size: 28px;
-    letter-spacing: 0.5px;
+    font-size: 27px;
+    letter-spacing: 0.4px;
+}
+
+.login-logo {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 12px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 8px;
+    border: 1px solid #d4e4f3;
 }
 
 .sidebar p {
-    margin: 6px 0 20px;
-    color: var(--muted);
+    margin: 8px 0 18px;
+    color: #bee8ff;
+    font-size: 13px;
+}
+
+.user-chip {
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+}
+
+.user-chip strong {
+    display: block;
     font-size: 14px;
+}
+
+.user-chip span {
+    font-size: 12px;
+    color: #d7f2ff;
 }
 
 .sidebar nav {
@@ -77,63 +149,94 @@ body {
     gap: 8px;
 }
 
-.sidebar a {
+.nav-link {
     text-decoration: none;
-    color: var(--text);
+    color: #eef9ff;
     font-weight: 600;
-    border: 1px solid var(--line);
     border-radius: 12px;
     padding: 10px 12px;
-    transition: all 0.25s ease;
-    background: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
 }
 
-.sidebar a:hover {
-    background: linear-gradient(90deg, rgba(15, 157, 122, 0.08), rgba(26, 127, 203, 0.08));
-    border-color: #b9d8cf;
-    transform: translateY(-1px);
+.nav-link:hover {
+    transform: translateX(3px);
+    background: linear-gradient(90deg, rgba(82, 213, 255, 0.18), rgba(132, 255, 204, 0.15));
+    border-color: rgba(255, 255, 255, 0.42);
+}
+
+.nav-danger {
+    border-color: rgba(255, 149, 176, 0.4);
+    background: rgba(240, 68, 111, 0.2);
 }
 
 .content {
-    padding: 26px;
+    padding: 28px;
 }
 
 .header h2 {
-    margin: 0 0 4px;
+    margin: 0 0 6px;
     font-size: 30px;
+    letter-spacing: 0.2px;
 }
 
 .header p {
     margin: 0 0 18px;
     color: var(--muted);
+    font-size: 14px;
 }
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     gap: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
 .card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 14px;
+    border-radius: 18px;
+    padding: 15px;
     box-shadow: var(--shadow);
+    backdrop-filter: var(--glass);
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--brand-a), var(--brand-b));
+}
+
+.cards .card:nth-child(3n)::before {
+    background: linear-gradient(90deg, var(--brand-c), #ffd86a);
+}
+
+.cards .card:nth-child(4n)::before {
+    background: linear-gradient(90deg, #7d7bff, #31c9a6);
 }
 
 .card h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--muted);
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
 }
 
 .card strong {
     margin-top: 8px;
     display: block;
-    font-size: 26px;
+    font-size: 28px;
+    font-weight: 700;
 }
 
 .grid-2 {
@@ -146,9 +249,10 @@ body {
 .panel {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 18px;
     box-shadow: var(--shadow);
-    padding: 14px;
+    padding: 15px;
+    backdrop-filter: var(--glass);
 }
 
 .panel h3 {
@@ -160,49 +264,61 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    overflow: hidden;
 }
 
-th, td {
-    border-bottom: 1px solid var(--line);
+th,
+td {
+    border-bottom: 1px solid #e4eef8;
     text-align: left;
-    padding: 9px 8px;
+    padding: 10px 8px;
+}
+
+tbody tr:nth-child(even) {
+    background: rgba(31, 142, 241, 0.04);
+}
+
+tbody tr:hover {
+    background: rgba(11, 183, 131, 0.08);
 }
 
 th {
-    color: var(--muted);
-    font-size: 12px;
-    letter-spacing: 0.2px;
+    color: #4f6983;
+    font-size: 11px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    background: rgba(31, 142, 241, 0.08);
 }
 
 .module-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     gap: 12px;
 }
 
 .module-card {
     text-decoration: none;
     color: inherit;
-    border: 1px solid var(--line);
+    border: 1px solid #cfe3f4;
     border-radius: 14px;
-    padding: 12px;
-    background: linear-gradient(135deg, rgba(15, 157, 122, 0.06), rgba(26, 127, 203, 0.06));
+    padding: 14px;
+    background: linear-gradient(135deg, rgba(31, 142, 241, 0.1), rgba(11, 183, 131, 0.1));
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .module-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 22px rgba(22, 48, 43, 0.12);
+    box-shadow: 0 14px 24px rgba(20, 86, 115, 0.16);
 }
 
 .module-card h4 {
-    margin: 0 0 6px;
+    margin: 0 0 4px;
 }
 
 .module-card p {
     margin: 0;
     color: var(--muted);
+    font-size: 13px;
 }
 
 .details-list {
@@ -216,7 +332,7 @@ th {
     justify-content: space-between;
     gap: 12px;
     border-bottom: 1px solid var(--line);
-    padding: 8px 0;
+    padding: 9px 0;
 }
 
 .details-list span {
@@ -229,29 +345,83 @@ th {
 
 .form-grid label {
     display: block;
-    font-size: 13px;
-    color: var(--muted);
+    font-size: 12px;
+    color: #4e6982;
     margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+    font-weight: 700;
 }
 
 .form-grid input,
 .form-grid select,
 .form-grid textarea {
     width: 100%;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 9px 10px;
+    border: 1px solid #cfe1ef;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 11px;
+    padding: 10px;
     font: inherit;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+    border-color: var(--brand-a);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(31, 142, 241, 0.14);
 }
 
 .btn {
     display: inline-block;
     padding: 10px 14px;
     border-radius: 10px;
-    border: 1px solid #0f8a6b;
-    background: linear-gradient(90deg, #0f9d7a, #1a7fcb);
+    border: 1px solid #0f7ad7;
+    background: linear-gradient(90deg, var(--brand-a), var(--brand-b));
     color: #fff;
     text-decoration: none;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(31, 142, 241, 0.3);
+}
+
+.btn:hover {
+    filter: brightness(1.04);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.status-in {
+    color: #0a8f66;
+    background: rgba(11, 183, 131, 0.14);
+    border-color: rgba(11, 183, 131, 0.35);
+}
+
+.status-out {
+    color: #cc2f52;
+    background: rgba(240, 68, 111, 0.14);
+    border-color: rgba(240, 68, 111, 0.35);
+}
+
+.status-neutral {
+    color: #496a86;
+    background: rgba(84, 118, 150, 0.12);
+    border-color: rgba(84, 118, 150, 0.28);
+}
+
+.amount-in {
+    color: #0a8f66;
+    font-weight: 700;
+}
+
+.amount-out {
+    color: #d8385f;
     font-weight: 700;
 }
 
@@ -261,9 +431,12 @@ th {
     }
     .sidebar {
         border-right: none;
-        border-bottom: 1px solid var(--line);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
     .grid-2 {
         grid-template-columns: 1fr;
+    }
+    .content {
+        padding: 16px;
     }
 }

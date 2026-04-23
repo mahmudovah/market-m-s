@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirish</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+    <div class="layout" style="grid-template-columns:1fr;">
+        <main class="content" style="max-width:520px;margin:30px auto;">
+            <section class="header">
+                <img class="login-logo" src="{% static 'img/tijara-logo.png' %}" alt="Tijara logo">
+                <h2>Tizimga kirish</h2>
+                <p>Admin va operatorlar uchun yagona login sahifa.</p>
+            </section>
+            <section class="panel">
+                <form method="post" class="form-grid">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn">Kirish</button>
+                </form>
+                <p><a href="/admin/login/">Admin login</a></p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
